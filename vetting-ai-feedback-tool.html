@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product feedback: POC AI Screening</title>
+<style>
+  /* Stolt-Nielsen brand variables */
+  :root {
+    --sn-navy: #041E42;
+    --sn-yellow: #F2A900;
+    --sn-grey: #63666A;
+    --sn-red: #C81034;
+    --sn-light-blue: #7A99AC;
+    --sn-bg: #f4f4f4;
+    --sn-border: #ddddd8;
+    --sn-white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: var(--sn-bg); color: var(--sn-navy); min-height: 100vh; }
+
+  /* Top bar with logo */
+  .topbar { background: var(--sn-navy); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: flex-end; }
+  .sn-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .sn-logo-text { color: #fff; font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.01em; }
+  .sn-logo img { height: 36px; width: auto; }
+  .sn-logo-mark { width: 22px; height: 22px; background: var(--sn-red); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sn-logo-mark-inner { width: 10px; height: 10px; background: #fff; }
+
+  /* Yellow accent bar under topbar */
+  .accent-bar { height: 4px; background: var(--sn-yellow); }
+
+  .app { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+  .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; gap: 1.5rem; flex-wrap: wrap; }
+  .header-card { background: var(--sn-white); border: 1px solid var(--sn-border); border-left: 5px solid var(--sn-yellow); border-radius: 4px; padding: 1.25rem 1.5rem; flex: 1; min-width: 0; }
+  .header-card .eyebrow { font-size: 11px; font-weight: 700; color: var(--sn-grey); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .header-card h1 { font-size: 26px; font-weight: 700; color: var(--sn-navy); line-height: 1.15; margin-bottom: 8px; }
+  .header-card .subtitle { font-size: 13px; color: var(--sn-grey); margin-bottom: 12px; line-height: 1.5; }
+  .dept-label { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--sn-navy); background: var(--sn-yellow); padding: 3px 10px; border-radius: 3px; letter-spacing: 0.02em; }
+  .header-tabs { display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start; gap: 0; flex-shrink: 0; padding-top: 2px; }
+  .product-pill { font-size: 11px; padding: 3px 10px; border-radius: 3px; background: var(--sn-navy); color: #fff; font-weight: 700; margin-top: 8px; display: inline-block; letter-spacing: 0.03em; }
+  .tabs { display: flex; gap: 4px; background: #e8e8e8; border-radius: 4px; padding: 4px; flex-shrink: 0; }
+  .tab { padding: 6px 16px; border: none; background: transparent; border-radius: 3px; cursor: pointer; font-size: 13px; color: var(--sn-grey); font-family: Arial, sans-serif; font-weight: 700; transition: all 0.15s; }
+  .tab.active { background: var(--sn-navy); color: #fff; }
+  .identity-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; padding: 10px 14px; background: var(--sn-white); border-radius: 4px; border: 1px solid var(--sn-border); border-left: 4px solid var(--sn-yellow); }
+  .identity-bar label { font-size: 13px; color: var(--sn-grey); white-space: nowrap; font-weight: 700; }
+  .identity-bar input { flex: 1; background: var(--sn-bg); border: 1px solid var(--sn-border); border-radius: 3px; padding: 6px 10px; font-size: 13px; font-family: Arial, sans-serif; color: var(--sn-navy); }
+  .identity-bar input:focus { outline: none; border-color: var(--sn-navy); background: #fff; }
+  .mod-badge { font-size: 11px; padding: 2px 8px; border-radius: 3px; background: var(--sn-yellow); color: var(--sn-navy); font-weight: 700; white-space: nowrap; }
+  .submit-card { background: var(--sn-white); border: 1px solid var(--sn-border); border-radius: 4px; border-top: 3px solid var(--sn-navy); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .submit-card h2 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--sn-navy); }
+  .form-row { display: grid; grid-template-columns: 1fr 160px; gap: 8px; margin-bottom: 8px; }
+  .form-row input, .form-row select { border: 1px solid var(--sn-border); border-radius: 3px; padding: 8px 10px; font-size: 13px; font-family: Arial, sans-serif; background: var(--sn-bg); color: var(--sn-navy); }
+  .form-row input:focus, .form-row select:focus { outline: none; border-color: var(--sn-navy); background: #fff; }
+  textarea.desc { width: 100%; border: 1px solid var(--sn-border); border-radius: 3px; padding: 8px 10px; font-size: 13px; font-family: Arial, sans-serif; background: var(--sn-bg); color: var(--sn-navy); resize: vertical; min-height: 64px; margin-bottom: 10px; }
+  textarea.desc:focus { outline: none; border-color: var(--sn-navy); background: #fff; }
+  .submit-btn { background: var(--sn-navy); color: #fff; border: none; padding: 8px 20px; border-radius: 3px; font-size: 13px; font-family: Arial, sans-serif; cursor: pointer; font-weight: 700; }
+  .submit-btn:hover { background: #0a3060; }
+  .filters { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-btn { padding: 4px 12px; border: 1px solid var(--sn-border); border-radius: 3px; background: #fff; font-size: 12px; cursor: pointer; font-family: Arial, sans-serif; color: var(--sn-grey); font-weight: 700; }
+  .filter-btn.active { background: var(--sn-navy); color: #fff; border-color: var(--sn-navy); }
+  .filter-people-row { display: flex; align-items: center; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .filter-people-label { font-size: 12px; font-weight: 700; color: var(--sn-grey); white-space: nowrap; }
+  .filter-clear { font-size: 11px; padding: 3px 10px; border: 1px solid var(--sn-border); border-radius: 3px; background: transparent; cursor: pointer; font-family: Arial, sans-serif; color: var(--sn-grey); margin-left: 4px; }
+  .filter-clear:hover { background: var(--sn-bg); color: var(--sn-navy); }
+  .feedback-list { display: flex; flex-direction: column; gap: 8px; }
+  .feedback-card { background: var(--sn-white); border: 1px solid var(--sn-border); border-radius: 4px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; transition: border-color 0.15s; }
+  .feedback-card .card-body { width: 100%; }
+  .feedback-card:hover { border-color: var(--sn-light-blue); }
+  .feedback-card.drag-over { border: 2px solid var(--sn-yellow); }
+  .vote-btn-inline { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid var(--sn-border); border-radius: 3px; background: #fff; cursor: pointer; font-size: 12px; font-family: Arial, sans-serif; color: var(--sn-grey); transition: all 0.15s; font-weight: 700; }
+  .vote-btn-inline:hover { background: var(--sn-bg); border-color: var(--sn-navy); color: var(--sn-navy); }
+  .vote-btn-inline.voted { background: var(--sn-yellow); border-color: var(--sn-yellow); color: var(--sn-navy); }
+  .vote-count-inline { font-weight: 700; }
+  .card-body { flex: 1; min-width: 0; }
+  .card-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+  .card-title { font-size: 14px; font-weight: 700; flex: 1; color: var(--sn-navy); }
+  .cat-tag { font-size: 11px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; font-weight: 700; }
+  .cat-design { background: #e0f0e8; color: #085041; }
+  .cat-perf { background: #ddeaf5; color: #0C447C; }
+  .cat-bug { background: #fce8e8; color: #791F1F; }
+  .cat-feature { background: #fef3d8; color: #7a5200; }
+  .cat-data { background: #f5e8f0; color: #72243E; }
+  .cat-other { background: #ebebeb; color: var(--sn-grey); }
+  .card-desc { font-size: 13px; color: var(--sn-grey); line-height: 1.5; margin-bottom: 6px; }
+  .card-meta { font-size: 11px; color: #999; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .mod-actions { display: flex; gap: 6px; }
+  .mod-btn { font-size: 11px; padding: 2px 8px; border: 1px solid var(--sn-border); border-radius: 3px; background: transparent; cursor: pointer; font-family: Arial, sans-serif; color: var(--sn-grey); font-weight: 700; }
+  .mod-btn:hover { background: var(--sn-bg); border-color: var(--sn-navy); color: var(--sn-navy); }
+  .mod-btn.danger:hover { background: #fce8e8; color: #791F1F; border-color: #e09090; }
+  .drag-handle { font-size: 14px; color: #bbb; cursor: grab; flex-shrink: 0; padding: 2px; user-select: none; }
+  .session-header { background: var(--sn-white); border: 1px solid var(--sn-border); border-radius: 4px; border-top: 3px solid var(--sn-navy); padding: 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .session-header h2 { font-size: 15px; font-weight: 700; color: var(--sn-navy); }
+  .session-header p { font-size: 13px; color: var(--sn-grey); margin-top: 2px; }
+  .session-actions { display: flex; gap: 8px; }
+  .action-btn { padding: 7px 16px; border: 1px solid var(--sn-border); border-radius: 3px; background: #fff; font-size: 13px; cursor: pointer; font-family: Arial, sans-serif; color: var(--sn-grey); font-weight: 700; }
+  .action-btn:hover { background: var(--sn-bg); border-color: var(--sn-navy); color: var(--sn-navy); }
+  .action-btn.primary { background: var(--sn-navy); color: #fff; border-color: var(--sn-navy); }
+  .action-btn.primary:hover { background: #0a3060; }
+  .rank-label { font-size: 11px; color: var(--sn-grey); text-align: center; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ranked-item { display: flex; align-items: center; gap: 10px; }
+  .rank-num { width: 24px; height: 24px; border-radius: 50%; background: var(--sn-bg); border: 1px solid var(--sn-border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--sn-grey); flex-shrink: 0; }
+  .rank-num.top { background: var(--sn-yellow); color: var(--sn-navy); border-color: var(--sn-yellow); }
+  .mod-panel { background: var(--sn-white); border: 1px solid var(--sn-border); border-radius: 4px; padding: 1.25rem; margin-top: 1.5rem; border-top: 3px solid var(--sn-navy); }
+  .mod-panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--sn-navy); }
+  .mod-list { display: flex; flex-direction: column; gap: 6px; }
+  .mod-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--sn-bg); border-radius: 3px; font-size: 13px; }
+  .add-mod-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-mod-row input { flex: 1; border: 1px solid var(--sn-border); border-radius: 3px; padding: 7px 10px; font-size: 13px; font-family: Arial, sans-serif; background: var(--sn-bg); color: var(--sn-navy); }
+  .add-mod-row input:focus { outline: none; border-color: var(--sn-navy); }
+  .empty { text-align: center; padding: 3rem 0; color: #999; font-size: 14px; }
+  .devops-section { margin-top: 1.5rem; background: var(--sn-bg); border: 1px solid var(--sn-border); border-radius: 4px; padding: 1.25rem; }
+  .devops-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--sn-navy); }
+  .devops-section p { font-size: 13px; color: var(--sn-grey); margin-bottom: 12px; }
+  .devops-preview { font-size: 12px; font-family: 'Cascadia Code', 'Consolas', monospace; background: #fff; border: 1px solid var(--sn-border); border-radius: 3px; padding: 10px 12px; white-space: pre-wrap; color: var(--sn-grey); max-height: 160px; overflow-y: auto; }
+  .loading { text-align: center; padding: 4rem 0; color: #999; font-size: 14px; }
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--sn-navy); color: #fff; padding: 8px 20px; border-radius: 3px; font-size: 13px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; border-bottom: 3px solid var(--sn-yellow); }
+  .toast.show { opacity: 1; }
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .header { flex-direction: column; }
+    .topbar { padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="sn-logo"><span class="sn-logo-text">Stolt-Nielsen</span><img src="data:image/jpeg;base64,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" alt="Stolt-Nielsen" /></div></div><div class="accent-bar"></div><div class="app" id="app"><div class="loading">Loading feedback...</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATEGORIES = ['Design', 'Performance', 'Bug', 'Feature', 'Data', 'Other'];
+const CAT_CLASS = { Design: 'cat-design', Performance: 'cat-perf', Bug: 'cat-bug', Feature: 'cat-feature', Data: 'cat-data', Other: 'cat-other' };
+const STORAGE_KEY = 'vetting_ai_feedback_v1';
+const MODS_KEY = 'vetting_ai_moderators_v1';
+
+let state = {
+  view: 'feedback',
+  userName: localStorage.getItem('feedback_username') || '',
+  items: [],
+  sessionOrder: [],
+  moderators: ['Admin'],
+  filterCat: 'All',
+  filterPeople: [],
+  dragId: null,
+  dragOverId: null,
+  nextId: 1,
+  loaded: false,
+  editingId: null,
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state.items = parsed.items || [];
+      state.nextId = parsed.nextId || (state.items.length + 1);
+    }
+  } catch(e) { state.items = []; }
+  try {
+    const mods = localStorage.getItem(MODS_KEY);
+    if (mods) state.moderators = JSON.parse(mods);
+  } catch(e) {}
+  state.loaded = true;
+  render();
+}
+
+function saveItems() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, nextId: state.nextId })); }
+  catch(e) { showToast('Storage full — could not save'); }
+}
+
+function saveMods() {
+  try { localStorage.setItem(MODS_KEY, JSON.stringify(state.moderators)); } catch(e) {}
+}
+
+function isMod() { return state.moderators.includes(state.userName); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function formatDate(ts) {
+  return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function submitFeedback() {
+  const name = state.userName.trim();
+  if (!name) { showToast('Please enter your name first'); return; }
+  const title = document.getElementById('fi-title').value.trim();
+  const desc = document.getElementById('fi-desc').value.trim();
+  const cat = document.getElementById('fi-cat').value;
+  if (!title) { showToast('Title is required'); return; }
+  const item = { id: state.nextId++, title, desc, category: cat, author: name, votes: [], ts: Date.now() };
+  state.items.push(item);
+  if (state.sessionOrder.length) state.sessionOrder.push(item.id);
+  saveItems();
+  document.getElementById('fi-title').value = '';
+  document.getElementById('fi-desc').value = '';
+  render();
+  showToast('Feedback saved');
+}
+
+function toggleVote(id) {
+  const name = state.userName.trim();
+  if (!name) { showToast('Enter your name to vote'); return; }
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  const idx = item.votes.indexOf(name);
+  if (idx >= 0) item.votes.splice(idx, 1);
+  else item.votes.push(name);
+  saveItems();
+  render();
+}
+
+function deleteItem(id) {
+  if (!confirm('Remove this feedback item?')) return;
+  state.items = state.items.filter(i => i.id !== id);
+  state.sessionOrder = state.sessionOrder.filter(i => i !== id);
+  saveItems();
+  render();
+}
+
+function editItem(id) {
+  state.editingId = id;
+  render();
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('edit-title-'+id).value = item.title;
+  document.getElementById('edit-desc-'+id).value = item.desc;
+  document.getElementById('edit-cat-'+id).value = item.category;
+}
+
+function cancelEdit() { state.editingId = null; render(); }
+
+function saveEdit(id) {
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  const title = document.getElementById('edit-title-'+id).value.trim();
+  if (!title) { showToast('Title cannot be empty'); return; }
+  item.title = title;
+  item.desc = document.getElementById('edit-desc-'+id).value.trim();
+  item.category = document.getElementById('edit-cat-'+id).value;
+  item.edited = Date.now();
+  state.editingId = null;
+  saveItems();
+  render();
+  showToast('Feedback updated');
+}
+
+function startSession() {
+  state.sessionOrder = [...state.items].sort((a,b) => b.votes.length - a.votes.length).map(i => i.id);
+  state.view = 'session';
+  render();
+}
+
+function endSession() { state.view = 'feedback'; render(); }
+
+function getADOPayload() {
+  const ordered = state.sessionOrder.length
+    ? state.sessionOrder.map(id => state.items.find(i => i.id === id)).filter(Boolean)
+    : [...state.items].sort((a,b) => b.votes.length - a.votes.length);
+  return JSON.stringify(ordered.map((item, idx) => ({
+    title: item.title,
+    description: item.desc,
+    tags: item.category,
+    priority: idx + 1,
+    votes: item.votes.length,
+  })), null, 2);
+}
+
+function copyExport() {
+  navigator.clipboard.writeText(getADOPayload())
+    .then(() => showToast('Copied to clipboard'))
+    .catch(() => showToast('Copy failed — please select and copy manually'));
+}
+
+function dragStart(id) { state.dragId = id; }
+function dragOver(id) { if (id !== state.dragId) { state.dragOverId = id; renderSession(); } }
+function drop(id) {
+  if (state.dragId === null || state.dragId === id) { state.dragId = null; state.dragOverId = null; return; }
+  const from = state.sessionOrder.indexOf(state.dragId);
+  const to = state.sessionOrder.indexOf(id);
+  state.sessionOrder.splice(from, 1);
+  state.sessionOrder.splice(to, 0, state.dragId);
+  state.dragId = null; state.dragOverId = null;
+  renderSession();
+}
+
+function togglePersonFilter(name) {
+  const idx = state.filterPeople.indexOf(name);
+  if (idx >= 0) state.filterPeople.splice(idx, 1);
+  else state.filterPeople.push(name);
+  render();
+}
+
+function renderFeedback() {
+  let filtered = state.filterCat === 'All' ? state.items : state.items.filter(i => i.category === state.filterCat);
+  if (state.filterPeople.length > 0) filtered = filtered.filter(i => state.filterPeople.includes(i.author));
+  const sorted = [...filtered].sort((a,b) => b.votes.length - a.votes.length);
+  const mod = isMod();
+  const allAuthors = [...new Set(state.items.map(i => i.author))].sort();
+  return `
+    <div class="submit-card">
+      <h2>Share feedback</h2>
+      <div class="form-row">
+        <input id="fi-title" placeholder="What's the issue or idea?" />
+        <select id="fi-cat">${CATEGORIES.map(c => `<option>${c}</option>`).join('')}</select>
+      </div>
+      <textarea class="desc" id="fi-desc" placeholder="Describe it briefly (optional)"></textarea>
+      <button class="submit-btn" onclick="submitFeedback()">Submit feedback</button>
+    </div>
+    <div class="filters">
+      ${['All', ...CATEGORIES].map(c => `<button class="filter-btn${state.filterCat===c?' active':''}" onclick="state.filterCat='${c}';render()">${c}</button>`).join('')}
+    </div>
+    ${allAuthors.length > 0 ? `<div class="filter-people-row">
+      <span class="filter-people-label">By person:</span>
+      ${allAuthors.map(a => `<button class="filter-btn person-btn${state.filterPeople.includes(a)?' active':''}" onclick="togglePersonFilter('${a}')">${a}${a===state.userName?' (you)':''}</button>`).join('')}
+      ${state.filterPeople.length > 0 ? '<button class="filter-clear" onclick="state.filterPeople=[];render()">Clear</button>' : ''}
+    </div>` : ''}
+    <div class="feedback-list">
+      ${sorted.length===0 ? '<div class="empty">No feedback yet — be the first to add some</div>' : sorted.map(item => {
+        const voted = state.userName && item.votes.includes(state.userName);
+        const isOwner = state.userName && item.author === state.userName;
+        const isEditing = state.editingId === item.id;
+        if (isEditing) {
+          return `<div class="feedback-card" style="flex-direction:column;gap:10px;">
+            <div class="form-row">
+              <input id="edit-title-${item.id}" placeholder="Title" />
+              <select id="edit-cat-${item.id}">${CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+            </div>
+            <textarea class="desc" id="edit-desc-${item.id}" placeholder="Description (optional)" style="margin-bottom:0"></textarea>
+            <div style="display:flex;gap:8px;">
+              <button class="submit-btn" onclick="saveEdit(${item.id})">Save</button>
+              <button class="action-btn" onclick="cancelEdit()">Cancel</button>
+            </div>
+          </div>`;
+        }
+        return `<div class="feedback-card">
+          <div class="card-body">
+            <div class="card-top">
+              <span class="card-title">${item.title}</span>
+              <span class="cat-tag ${CAT_CLASS[item.category]||'cat-other'}">${item.category}</span>
+            </div>
+            ${item.desc?`<div class="card-desc">${item.desc}</div>`:''}
+            <div class="card-meta">
+              <button class="vote-btn-inline${voted?' voted':''}" onclick="toggleVote(${item.id})" title="${voted?'Remove vote':'Agree with this feedback'}">👍 ${item.votes.length} ${''}</button>
+              <span>${item.author}</span><span>${formatDate(item.ts)}</span>
+              ${item.edited?`<span>edited ${formatDate(item.edited)}</span>`:''}
+              ${item.votes.length>0?`<span>${item.votes.slice(0,3).join(', ')}${item.votes.length>3?` +${item.votes.length-3}`:''} voted</span>`:''}
+              <div class="mod-actions">
+                ${isOwner?`<button class="mod-btn" onclick="editItem(${item.id})">Edit</button>`:''}
+                ${isOwner||mod?`<button class="mod-btn danger" onclick="deleteItem(${item.id})">Remove</button>`:''}
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${mod ? `
+    <div class="mod-panel">
+      <h3>Moderator settings</h3>
+      <div class="mod-list">
+        ${state.moderators.map(m=>`<div class="mod-item"><span>${m}</span>${m!=='Admin'?`<button class="mod-btn danger" onclick="removeMod('${m}')">Remove</button>`:'<span class="mod-badge">owner</span>'}</div>`).join('')}
+      </div>
+      <div class="add-mod-row">
+        <input id="new-mod-input" placeholder="Add moderator by name..." />
+        <button class="action-btn" onclick="addMod()">Add</button>
+      </div>
+    </div>
+    <div class="devops-section">
+      <h3>Azure DevOps export</h3>
+      <p>Copy this JSON payload to create work items in your backlog.</p>
+      <div class="devops-preview">${getADOPayload()}</div>
+      <button class="action-btn" style="margin-top:10px" onclick="copyExport()">Copy to clipboard</button>
+    </div>` : ''}
+  `;
+}
+
+function addMod() {
+  const val = document.getElementById('new-mod-input').value.trim();
+  if (!val || state.moderators.includes(val)) return;
+  state.moderators.push(val); saveMods(); render();
+}
+
+function removeMod(name) {
+  state.moderators = state.moderators.filter(x => x !== name); saveMods(); render();
+}
+
+function renderSession() {
+  const ordered = state.sessionOrder.map(id => state.items.find(i => i.id === id)).filter(Boolean);
+  const container = document.getElementById('session-list');
+  if (!container) return;
+  container.innerHTML = ordered.map((item, idx) => `
+    <div class="feedback-card ranked-item${state.dragOverId===item.id?' drag-over':''}"
+      draggable="true"
+      ondragstart="dragStart(${item.id})"
+      ondragover="event.preventDefault();dragOver(${item.id})"
+      ondrop="drop(${item.id})">
+      <span class="drag-handle">⠿</span>
+      <span class="rank-num${idx<3?' top':''}">${idx+1}</span>
+      <div class="card-body">
+        <div class="card-top">
+          <span class="card-title">${item.title}</span>
+          <span class="cat-tag ${CAT_CLASS[item.category]||'cat-other'}">${item.category}</span>
+        </div>
+        ${item.desc?`<div class="card-desc">${item.desc}</div>`:''}
+        <div class="card-meta"><span>${item.votes.length} vote${item.votes.length!==1?'s':''}</span><span>${item.author}</span></div>
+      </div>
+    </div>`).join('');
+  const preview = document.getElementById('ado-preview');
+  if (preview) preview.textContent = getADOPayload();
+}
+
+function render() {
+  if (!state.loaded) return;
+  const mod = isMod();
+  document.getElementById('app').innerHTML = `
+    <div class="header">
+      <div class="header-card">
+        <p class="eyebrow">Product feedback</p>
+        <h1>POC AI Screening</h1>
+        <p class="subtitle">Share your thoughts and help us prioritise what to build next.</p>
+        <span class="dept-label">ST BTI - Business Technologies &amp; Innovation</span>
+      </div>
+      <div class="header-tabs">
+        <div class="tabs">
+          <button class="tab${state.view==='feedback'?' active':''}" onclick="state.view='feedback';render()">Feedback</button>
+          <button class="tab${state.view==='session'?' active':''}" onclick="state.view==='feedback'?startSession():null">Group session</button>
+        </div>
+      </div>
+    </div>
+    <div class="identity-bar">
+      <label>Your name:</label>
+      <input value="${state.userName}" placeholder="Enter your name to vote and submit"
+        oninput="state.userName=this.value;localStorage.setItem('feedback_username',this.value);renderBadge()"
+        onblur="render()" />
+      <span id="mod-badge-area">${mod?'<span class="mod-badge">moderator</span>':''}</span>
+    </div>
+    ${state.view==='feedback' ? renderFeedback() : `
+      <div class="session-header">
+        <div>
+          <h2>Group prioritization session</h2>
+          <p>Drag items to reorder. Top items will be pushed to Azure DevOps.</p>
+        </div>
+        <div class="session-actions">
+          <button class="action-btn" onclick="endSession()">← Back</button>
+          ${mod?`<button class="action-btn primary" onclick="copyExport()">Copy export</button>`:''}
+        </div>
+      </div>
+      <div class="rank-label">Drag to reorder priority</div>
+      <div class="feedback-list" id="session-list"></div>
+      ${mod?`<div class="devops-section" style="margin-top:1.5rem"><h3>Azure DevOps export</h3><p>Ranked order ready to sync with your backlog.</p><div class="devops-preview" id="ado-preview"></div><button class="action-btn" style="margin-top:10px" onclick="copyExport()">Copy to clipboard</button></div>`:''}
+    `}
+  `;
+  if (state.view==='session') renderSession();
+}
+
+function renderBadge() {
+  const el = document.getElementById('mod-badge-area');
+  if (el) el.innerHTML = isMod() ? '<span class="mod-badge">moderator</span>' : '';
+}
+
+loadData();
+</script>
+</body>
+</html>
